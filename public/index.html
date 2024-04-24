@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Library Management</title>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1>Library Management System</h1>
+
+<!-- Form to add a new book -->
+<h2>Add Book</h2>
+<form id="addBookForm">
+    <label for="title">Book Title:</label>
+    <input type="text" id="title" name="title" required>
+    <button type="button" onclick="addBook()">Submit</button>
+</form>
+
+<!-- Section to show all books -->
+<h2>All Books</h2>
+<div id="allBooks"></div>
+
+<!-- Button to show returned books -->
+<button onclick="getReturnedBooks()">Show Returned Books</button>
+<div id="returnedBooks"></div>
+
+<script>
+function addBook() {
+    const title = document.getElementById('title').value;
+    const currentTime = new Date();
+    const purchaseTime = currentTime.toISOString();
+    currentTime.setHours(currentTime.getHours() + 1);
+    const returnTime = currentTime.toISOString();
+
+    axios.post('/books', {
+        title: title,
+        purchaseTime: purchaseTime,
+        returnTime: returnTime
+    })
+    .then(function (response) {
+        alert('Book added successfully!');
+        getAllBooks(); // Refresh the list of all books
+        getReturnedBooks(); // Refresh the list of returned books
+    })
+    .catch(function (error) {
+        console.error('Error adding book:', error);
+    });
+}
+
+function getAllBooks() {
+    axios.get('/books')
+    .then(function (response) {
+        const books = response.data;
+        let content = '<h2>Books List</h2>';
+        books.forEach(book => {
+            content += `<p>Title: ${book.title}, Purchase Time: ${book.purchaseTime}, Current Fine: ${book.fine} Rs 
+                        <button onclick="returnBook(${book.id})">Return</button></p>`;
+        });
+        document.getElementById('allBooks').innerHTML = content;
+    })
+    .catch(function (error) {
+        console.error('Error:', error);
+    });
+}
+
+function getReturnedBooks() {
+    axios.get('/returnedBooks')
+    .then(function (response) {
+        const books = response.data;
+        let content = '<h2>Returned Books</h2>';
+        books.forEach(book => {
+            content += `<p>Title: ${book.title}, Fine Paid: ${book.fine} Rs</p>`;
+        });
+        document.getElementById('returnedBooks').innerHTML = content;
+    })
+    .catch(function (error) {
+        console.error('Error:', error);
+    });
+}
+
+function returnBook(bookId) {
+    const returnTime = new Date().toISOString();
+    axios.put(`/books/${bookId}`, { returnTime })
+    .then(function (response) {
+        alert('Book returned successfully!');
+        getAllBooks(); // Refresh the list of all books
+        getReturnedBooks(); // Refresh the list of returned books
+    })
+    .catch(function (error) {
+        console.error('Error returning book:', error);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    getAllBooks();
+    getReturnedBooks();
+});
+
+</script>
+</body>
+</html>
