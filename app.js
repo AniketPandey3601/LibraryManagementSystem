@@ -6,7 +6,7 @@ const axios = require('axios');
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static('public'));
-// Route to add a book
+
 app.post('/books', async (req, res) => {
     try {
       const { title, purchaseTime, returnTime } = req.body;
@@ -17,7 +17,7 @@ app.post('/books', async (req, res) => {
     }
   });
   
-  // Route to get all books
+
   app.get('/books', async (req, res) => {
     try {
       const books = await db.books.findAll();
@@ -27,7 +27,7 @@ app.post('/books', async (req, res) => {
     }
   });
   
-  // Route to update return time and calculate fine
+  
   app.put('/books/:id', async (req, res) => {
     try {
       const book = await db.books.findByPk(req.params.id);
@@ -45,7 +45,7 @@ app.post('/books', async (req, res) => {
     }
   });
   
-  // Route to get all returned books
+  
   app.get('/returnedBooks', async (req, res) => {
     const books = await db.books.findAll({
       where: {
